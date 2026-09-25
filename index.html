@@ -1,0 +1,326 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="ds/styles.css">
+<style>
+  body { margin: 0; background: var(--color-bg); }
+  a { color: #FF7A33; text-decoration: none; }
+  a:hover { color: #FF4D2E; }
+  .btn-primary { color: #FF8A4D !important; border-color: rgba(255,122,51,.55) !important; }
+  .btn-primary:hover { color: #FFA366 !important; border-color: #FF7A33 !important; }
+  @keyframes djGrain { 0%,100% { opacity: .5 } 50% { opacity: .85 } }
+  @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }
+</style>
+<script>
+  window.JS_ANALYTICS = { ga4: "G-XXXXXXXXXX", pixel: "XXXXXXXXXXXXXXX" };
+  (function () {
+    var c = window.JS_ANALYTICS;
+    if (c.ga4.indexOf("X") === -1) {
+      var s = document.createElement("script");
+      s.async = true; s.src = "https://www.googletagmanager.com/gtag/js?id=" + c.ga4;
+      document.head.appendChild(s);
+      window.dataLayer = window.dataLayer || [];
+      window.gtag = function () { window.dataLayer.push(arguments); };
+      gtag("js", new Date()); gtag("config", c.ga4);
+    }
+    if (c.pixel.indexOf("X") === -1 && !window.fbq) {
+      var n = window.fbq = function () { n.callMethod ? n.callMethod.apply(n, arguments) : n.queue.push(arguments); };
+      n.queue = []; n.loaded = true; n.version = "2.0";
+      var t = document.createElement("script");
+      t.async = true; t.src = "https://connect.facebook.net/en_US/fbevents.js";
+      document.head.appendChild(t);
+      fbq("init", c.pixel); fbq("track", "PageView");
+    }
+  })();
+</script>
+</helmet>
+
+<div style="background: var(--color-bg); color: var(--color-text); font-family: var(--font-body); font-size: 16px; line-height: 1.6; overflow-x: hidden; padding-bottom: 70px">
+
+  <header style="position: sticky; top: 0; z-index: 40; display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); align-items: center; gap: var(--space-4); padding: var(--space-2) var(--space-6) calc(var(--space-6) * 2); background: linear-gradient(180deg, color-mix(in srgb, var(--color-bg) 94%, transparent) 0%, color-mix(in srgb, var(--color-bg) 80%, transparent) 45%, color-mix(in srgb, var(--color-bg) 35%, transparent) 75%, transparent 100%)">
+    <a href="#top" style="display: flex; flex-wrap: wrap; align-items: baseline; column-gap: var(--space-3); color: var(--color-text); justify-self: start">
+      <span style="font-size: 10px; letter-spacing: .26em; color: var(--color-neutral-500)">PRESS KIT</span>
+    </a>
+    <a href="#top" aria-label="Solo Music" style="display: block; justify-self: center; line-height: 0">
+      
+    </a>
+    <nav style="display: flex; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: var(--space-3) clamp(12px, 2vw, 24px)">
+      <a href="#bio" style="font-size: 13px; letter-spacing: .06em; color: var(--color-neutral-300)" style-hover="color: var(--color-text)">BIO</a>
+      <a href="#rider" style="font-size: 13px; letter-spacing: .06em; color: var(--color-neutral-300)" style-hover="color: var(--color-text)">RIDER</a>
+      <a href="#booking" class="btn btn-primary" style="white-space: nowrap">Booking</a>
+    </nav>
+  </header>
+
+  <section id="top" style="position: relative; min-height: 92vh; display: grid; align-items: end; margin-top: -160px; padding: calc(var(--space-8) * 3 + 160px) var(--space-6) calc(var(--space-8) * 2); isolation: isolate">
+    <div class="lighten" style="position: absolute; inset: 0; z-index: -2; filter: hue-rotate(-152deg) saturate(1.12)">
+      <img src="dj/hero.jpg" alt="Juan Solo en cabina bajo luz cálida" style="width: 100%; height: 100%; object-fit: cover; object-position: center 40%">
+    </div>
+    <div style="position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, color-mix(in srgb, var(--color-bg) 78%, transparent) 0%, color-mix(in srgb, var(--color-bg) 30%, transparent) 45%, var(--color-bg) 94%)"></div>
+    <div aria-hidden="true" style="position: absolute; top: 0; right: 0; bottom: 0; width: 22%; z-index: -1; pointer-events: none; -webkit-backdrop-filter: blur(22px); backdrop-filter: blur(22px); background: linear-gradient(90deg, transparent, color-mix(in srgb, var(--color-bg) 55%, transparent) 55%, color-mix(in srgb, var(--color-bg) 75%, transparent)); -webkit-mask-image: linear-gradient(90deg, transparent, #000 40%); mask-image: linear-gradient(90deg, transparent, #000 40%)"></div>
+
+    <div style="max-width: 1180px; width: 100%; margin: 0 auto; display: grid; gap: var(--space-6)">
+      <span style="font-size: 12px; letter-spacing: .34em; color: #FF7A33; text-shadow: 0 0 16px rgba(255,90,40,.65)">HOUSE MUSIC · AMBATO, ECUADOR</span>
+      <h1 style="font-family: var(--font-heading); font-weight: 500; font-size: clamp(52px, 13vw, 168px); line-height: .88; letter-spacing: -.045em; margin: 0; text-shadow: 0 0 60px rgba(255,77,46,.35)">Juan Solo</h1>
+      <p style="margin: 0; max-width: 40ch; font-size: clamp(18px, 2vw, 23px); color: var(--color-neutral-200); text-wrap: pretty">Una selección refinada de house, movimiento y energía. Sesiones creadas para conectar con el público y definir la atmósfera de cada espacio.</p>
+      <div style="display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center; margin-top: var(--space-3)">
+        <a href="#escucha" onClick="{{ track }}" data-cta="hero-mix" class="btn btn-primary" style="font-size: 16px; padding: var(--space-4) var(--space-8); border-color: #FF7A33; box-shadow: 0 0 0 1px rgba(255,122,51,.3), 0 0 20px rgba(255,122,51,.5), inset 0 0 18px rgba(255,122,51,.14); transition: box-shadow .25s ease" style-hover="box-shadow: 0 0 0 1px rgba(255,140,40,.6), 0 0 34px rgba(255,109,38,.75), inset 0 0 24px rgba(255,140,40,.22)">Escuchar un set</a>
+        <a href="{{ waLink }}" target="_blank" rel="noopener" onClick="{{ track }}" data-cta="hero-booking" class="btn btn-secondary" style="font-size: 16px; padding: var(--space-4) var(--space-8)">Contratar por WhatsApp</a>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: var(--space-6); margin-top: var(--space-6); padding-top: var(--space-6); background: linear-gradient(to right, transparent, var(--color-divider) 48px, var(--color-divider) calc(100% - 48px), transparent) no-repeat top / 100% 1px">
+        <div>
+          <div style="font-family: var(--font-heading); font-size: 13px; letter-spacing: .14em; color: var(--color-neutral-500)">GÉNERO</div>
+          <div style="margin-top: var(--space-2); font-size: 16px">House</div>
+        </div>
+        <div>
+          <div style="font-family: var(--font-heading); font-size: 13px; letter-spacing: .14em; color: var(--color-neutral-500)">BASE</div>
+          <div style="margin-top: var(--space-2); font-size: 16px">Ambato, EC</div>
+        </div>
+        <div>
+          <div style="font-family: var(--font-heading); font-size: 13px; letter-spacing: .14em; color: var(--color-neutral-500)">SETS</div>
+          <div style="margin-top: var(--space-2); font-size: 16px">Club · rooftop · festival</div>
+        </div>
+        <div>
+          <div style="font-family: var(--font-heading); font-size: 13px; letter-spacing: .14em; color: var(--color-neutral-500)">CONTACTO</div>
+          <div style="margin-top: var(--space-2); font-size: 16px"><a href="{{ waLink }}" target="_blank" rel="noopener">+593 99 513 7063</a></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding: calc(var(--space-8) * 2) var(--space-6); background: var(--color-bg); background-image: linear-gradient(180deg, var(--color-bg), color-mix(in srgb, #FF4D2E 16%, var(--color-bg)) 45%, var(--color-bg))">
+    <div style="max-width: 1180px; margin: 0 auto; display: grid; gap: var(--space-8)">
+      <span style="font-size: 12px; letter-spacing: .3em; color: #FF7A33; text-shadow: 0 0 14px rgba(255,90,40,.6)">HA SONADO EN</span>
+      <div style="display: flex; flex-wrap: wrap; gap: var(--space-4) var(--space-8)">
+        <span style="font-family: var(--font-heading); font-size: clamp(21px, 2.9vw, 37px); font-weight: 500; color: #fff">DNTD Miami</span>
+        <span style="font-family: var(--font-heading); font-size: clamp(21px, 2.9vw, 37px); font-weight: 500; color: #fff">Aquelarre Music</span>
+        
+        <span style="font-family: var(--font-heading); font-size: clamp(21px, 2.9vw, 37px); font-weight: 500; color: #fff">GAD Ambato</span>
+        <span style="font-family: var(--font-heading); font-size: clamp(21px, 2.9vw, 37px); font-weight: 500; color: #fff">M-Sessions</span>
+        <span style="font-family: var(--font-heading); font-size: clamp(21px, 2.9vw, 37px); font-weight: 500; color: #fff">No Limits Event</span>
+        <span style="font-family: var(--font-heading); font-size: clamp(21px, 2.9vw, 37px); font-weight: 500; color: #fff">Social Entertainment</span>
+        <span style="font-family: var(--font-heading); font-size: clamp(21px, 2.9vw, 37px); font-weight: 500; color: #fff">Candy Flip</span>
+        <span style="font-family: var(--font-heading); font-size: clamp(21px, 2.9vw, 37px); font-weight: 500; color: #fff">RUSH</span>
+        <span style="font-family: var(--font-heading); font-size: clamp(21px, 2.9vw, 37px); font-weight: 500; color: #fff">MAMATUNGU</span>
+      </div>
+      <p style="margin: 0; font-size: 15px; color: #FFB08A">New York · New Jersey · Quito · Ambato · Baños</p>
+    </div>
+  </section>
+
+  <section id="escucha" style="padding: calc(var(--space-8) * 2.5) var(--space-6)">
+    <div style="max-width: 1180px; margin: 0 auto; display: grid; gap: var(--space-8)">
+      <div style="display: grid; gap: var(--space-3); max-width: 60ch">
+        <span style="font-size: 12px; letter-spacing: .3em; color: #FF7A33; text-shadow: 0 0 14px rgba(255,90,40,.6)">ESCUCHA</span>
+        <h2 style="font-family: var(--font-heading); font-weight: 500; font-size: clamp(28px, 3.6vw, 44px); line-height: 1.08; margin: 0; letter-spacing: -.02em">Antes de leer nada más, pon un set.</h2>
+      </div>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 340px), 1fr)); gap: var(--space-6)">
+        <a href="https://www.youtube.com/watch?v=4JHe6lDgnbU" target="_blank" rel="noopener" class="card" style="gap: var(--space-4); padding: var(--space-4); border: 1px solid #FF4D2E; box-shadow: 0 0 0 1px rgba(255,77,46,.25), 0 0 18px rgba(255,77,46,.4), inset 0 0 22px rgba(255,77,46,.1); text-decoration: none; color: inherit" style-hover="box-shadow: 0 0 0 1px rgba(255,77,46,.4), 0 0 28px rgba(255,77,46,.6), inset 0 0 22px rgba(255,77,46,.15)">
+          <div style="display: grid; gap: var(--space-2); padding: var(--space-2)">
+            <span class="card-kicker" style="color: #FF2E1F; font-weight: 700">SET 01</span>
+            <span class="card-title" style="color: #FF6B4A; text-shadow: 0 0 16px rgba(255,80,50,.5)">RoofTop</span>
+            <span class="card-body">House melódico para atardecer. Lo que suena cuando la pista recién se llena.</span>
+            <span style="font-size: 15px; font-weight: 600; color: #FF6B4A; margin-top: var(--space-2)">Ver en YouTube →</span>
+          </div>
+        </a>
+        <a href="https://www.youtube.com/watch?v=owYoDKsrtqQ" target="_blank" rel="noopener" class="card" style="gap: var(--space-4); padding: var(--space-4); border: 1px solid #FF4D2E; box-shadow: 0 0 0 1px rgba(255,77,46,.25), 0 0 18px rgba(255,77,46,.4), inset 0 0 22px rgba(255,77,46,.1); text-decoration: none; color: inherit" style-hover="box-shadow: 0 0 0 1px rgba(255,77,46,.4), 0 0 28px rgba(255,77,46,.6), inset 0 0 22px rgba(255,77,46,.15)">
+          <div style="display: grid; gap: var(--space-2); padding: var(--space-2)">
+            <span class="card-kicker" style="color: #FF2E1F; font-weight: 700">SET 02</span>
+            <span class="card-title" style="color: #FF6B4A; text-shadow: 0 0 16px rgba(255,80,50,.5)">Club</span>
+            <span class="card-body">Tech house y groove sostenido. Para cuando la noche ya no necesita explicaciones.</span>
+            <span style="font-size: 15px; font-weight: 600; color: #FF6B4A; margin-top: var(--space-2)">Ver en YouTube →</span>
+          </div>
+        </a>
+      </div>
+      <a href="{{ mixLink }}" target="_blank" rel="noopener" onClick="{{ track }}" data-cta="canal" style="font-size: 15px; justify-self: start">Más sets en el canal de YouTube →</a>
+    </div>
+  </section>
+
+  <section id="bio" style="padding: calc(var(--space-8) * 2) var(--space-6) calc(var(--space-8) * 2.5)">
+    <div style="max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: calc(var(--space-8) * 2); align-items: start">
+      <div style="display: grid; gap: var(--space-6)">
+        <span style="font-size: 12px; letter-spacing: .3em; color: #FF7A33; text-shadow: 0 0 14px rgba(255,90,40,.6)">BIOGRAFÍA</span>
+        <p style="margin: 0; font-size: clamp(18px, 1.9vw, 21px); line-height: 1.5; color: var(--color-neutral-100); text-wrap: pretty; text-align: justify">Juan Solo construye sesiones donde el groove, la elegancia y la energía avanzan como una sola narrativa. Su sonido se mueve entre el house, deep house, tech house, progressive y melodic house, combinando ritmos envolventes, melodías hipnóticas y una selección musical pensada para conectar con cada espacio y transformar su atmósfera. Más que seguir una fórmula, Juan Solo interpreta el momento: puede conducir una pista con energía o crear un ambiente sofisticado y profundo, manteniendo siempre una identidad reconocible detrás de cada transición.</p>
+        <p style="margin: 0; color: var(--color-neutral-300); text-wrap: pretty; text-align: justify">Como fundador de Solo Music, desarrolla una propuesta basada en la curaduría, la experiencia y una visión clara de la música electrónica: crear momentos que permanezcan incluso después de que termine la última canción. <br>Feel the music. Live the moment.</p>
+        <div style="display: flex; flex-wrap: wrap; gap: var(--space-3); align-items: center">
+          <button type="button" onClick="{{ copiarBio }}" class="btn btn-secondary" style="cursor: pointer">{{ labelCopiar }}</button>
+          <span style="font-size: 13px; color: var(--color-neutral-500)">Para pegarla en el flyer o la nota de prensa.</span>
+        </div>
+        <div style="display: grid; gap: var(--space-3); justify-items: center; text-align: center; padding-top: var(--space-6); margin-top: var(--space-2); border-top: 1px solid var(--color-neutral-800)">
+          <span style="font-size: 11px; letter-spacing: .3em; color: var(--color-neutral-500)">FUNDADOR DE</span>
+          <img src="dj/solo-music-logo.png" alt="Solo Music · Feel the music, live the moment" loading="lazy" style="width: min(100%, 340px); height: auto; display: block; margin: 0 auto">
+        </div>
+      </div>
+      <figure style="margin: 0; display: grid; gap: var(--space-3)">
+        <img src="dj/roof.jpg" alt="Juan Solo en cabina de rooftop con vista a Ambato" loading="lazy" style="width: 100%; border-radius: var(--radius-md); -webkit-mask-image: radial-gradient(78% 78% at 50% 45%, #000 30%, rgba(0,0,0,.6) 62%, transparent 92%); mask-image: radial-gradient(78% 78% at 50% 45%, #000 30%, rgba(0,0,0,.6) 62%, transparent 92%)">
+        
+      </figure>
+    </div>
+  </section>
+
+  <section style="padding: calc(var(--space-8) * 2) var(--space-6); background: linear-gradient(180deg, var(--color-bg), var(--color-surface) 16%, var(--color-surface) 84%, var(--color-bg))">
+    <div style="max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: calc(var(--space-8) * 2)">
+      <div style="display: grid; gap: var(--space-6); align-content: start">
+        <span style="font-size: 12px; letter-spacing: .3em; color: #FF7A33; text-shadow: 0 0 14px rgba(255,90,40,.6)">REFERENTES DE SONIDO</span>
+        <h2 style="font-family: var(--font-heading); font-weight: 500; font-size: clamp(24px, 2.8vw, 34px); line-height: 1.1; margin: 0">A qué suena la cabina.</h2>
+        <p style="margin: 0; color: var(--color-neutral-300); max-width: 38ch">Si conoces a estos artistas, ya sabes hacia dónde va el set.</p>
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(168px, 1fr)); gap: 0 var(--space-8)">
+          <span style="font-family: var(--font-heading); font-weight: 500; font-size: clamp(17px, 1.7vw, 22px); line-height: 1.2; letter-spacing: -.015em; color: var(--color-neutral-100); padding: var(--space-3) 0; background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-text) 10%, transparent) 14px, color-mix(in srgb, var(--color-text) 10%, transparent) calc(100% - 14px), transparent) no-repeat bottom / 100% 1px">Claptone</span>
+          <span style="font-family: var(--font-heading); font-weight: 500; font-size: clamp(17px, 1.7vw, 22px); line-height: 1.2; letter-spacing: -.015em; color: var(--color-neutral-100); padding: var(--space-3) 0; background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-text) 10%, transparent) 14px, color-mix(in srgb, var(--color-text) 10%, transparent) calc(100% - 14px), transparent) no-repeat bottom / 100% 1px">Franky Rizardo</span>
+          <span style="font-family: var(--font-heading); font-weight: 500; font-size: clamp(17px, 1.7vw, 22px); line-height: 1.2; letter-spacing: -.015em; color: var(--color-neutral-100); padding: var(--space-3) 0; background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-text) 10%, transparent) 14px, color-mix(in srgb, var(--color-text) 10%, transparent) calc(100% - 14px), transparent) no-repeat bottom / 100% 1px">James Hype</span>
+          <span style="font-family: var(--font-heading); font-weight: 500; font-size: clamp(17px, 1.7vw, 22px); line-height: 1.2; letter-spacing: -.015em; color: var(--color-neutral-100); padding: var(--space-3) 0; background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-text) 10%, transparent) 14px, color-mix(in srgb, var(--color-text) 10%, transparent) calc(100% - 14px), transparent) no-repeat bottom / 100% 1px">Boris Brejcha</span>
+          <span style="font-family: var(--font-heading); font-weight: 500; font-size: clamp(17px, 1.7vw, 22px); line-height: 1.2; letter-spacing: -.015em; color: var(--color-neutral-100); padding: var(--space-3) 0; background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-text) 10%, transparent) 14px, color-mix(in srgb, var(--color-text) 10%, transparent) calc(100% - 14px), transparent) no-repeat bottom / 100% 1px">Alisha</span>
+          
+          <span style="font-family: var(--font-heading); font-weight: 500; font-size: clamp(17px, 1.7vw, 22px); line-height: 1.2; letter-spacing: -.015em; color: var(--color-neutral-100); padding: var(--space-3) 0; background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-text) 10%, transparent) 14px, color-mix(in srgb, var(--color-text) 10%, transparent) calc(100% - 14px), transparent) no-repeat bottom / 100% 1px">Eats Everything</span>
+          <span style="font-family: var(--font-heading); font-weight: 500; font-size: clamp(17px, 1.7vw, 22px); line-height: 1.2; letter-spacing: -.015em; color: var(--color-neutral-100); padding: var(--space-3) 0; background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-text) 10%, transparent) 14px, color-mix(in srgb, var(--color-text) 10%, transparent) calc(100% - 14px), transparent) no-repeat bottom / 100% 1px">Adriatique</span>
+          <span style="font-family: var(--font-heading); font-weight: 500; font-size: clamp(17px, 1.7vw, 22px); line-height: 1.2; letter-spacing: -.015em; color: var(--color-neutral-100); padding: var(--space-3) 0; background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-text) 10%, transparent) 14px, color-mix(in srgb, var(--color-text) 10%, transparent) calc(100% - 14px), transparent) no-repeat bottom / 100% 1px">Nicole Moudaber</span>
+          <span style="font-family: var(--font-heading); font-weight: 500; font-size: clamp(17px, 1.7vw, 22px); line-height: 1.2; letter-spacing: -.015em; color: var(--color-neutral-100); padding: var(--space-3) 0; background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-text) 10%, transparent) 14px, color-mix(in srgb, var(--color-text) 10%, transparent) calc(100% - 14px), transparent) no-repeat bottom / 100% 1px">Mao Silgrand</span>
+          <span style="font-family: var(--font-heading); font-weight: 500; font-size: clamp(17px, 1.7vw, 22px); line-height: 1.2; letter-spacing: -.015em; color: var(--color-neutral-100); padding: var(--space-3) 0; background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-text) 10%, transparent) 14px, color-mix(in srgb, var(--color-text) 10%, transparent) calc(100% - 14px), transparent) no-repeat bottom / 100% 1px">Ben Rau</span>
+          <span style="font-family: var(--font-heading); font-weight: 500; font-size: clamp(17px, 1.7vw, 22px); line-height: 1.2; letter-spacing: -.015em; color: var(--color-neutral-100); padding: var(--space-3) 0">Joris Voorn</span>
+        </div>
+      </div>
+      <div style="display: grid; gap: var(--space-6); align-content: start">
+        <span style="font-size: 12px; letter-spacing: .3em; color: #FF7A33; text-shadow: 0 0 14px rgba(255,90,40,.6)">CABINA COMPARTIDA</span>
+        <h2 style="font-family: var(--font-heading); font-weight: 500; font-size: clamp(24px, 2.8vw, 34px); line-height: 1.1; margin: 0">Con quién ha tocado.</h2>
+        <div style="display: grid; gap: 0">
+          <div style="padding: var(--space-3) 0; background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-text) 10%, transparent) 20px, color-mix(in srgb, var(--color-text) 10%, transparent) calc(100% - 20px), transparent) no-repeat bottom / 100% 1px">Sebastián Xottelo</div>
+          <div style="padding: var(--space-3) 0; background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-text) 10%, transparent) 20px, color-mix(in srgb, var(--color-text) 10%, transparent) calc(100% - 20px), transparent) no-repeat bottom / 100% 1px">Mike Jaguar</div>
+          <div style="padding: var(--space-3) 0; background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-text) 10%, transparent) 20px, color-mix(in srgb, var(--color-text) 10%, transparent) calc(100% - 20px), transparent) no-repeat bottom / 100% 1px">Reydel</div>
+          <div style="padding: var(--space-3) 0; background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-text) 10%, transparent) 20px, color-mix(in srgb, var(--color-text) 10%, transparent) calc(100% - 20px), transparent) no-repeat bottom / 100% 1px">Entrañas</div>
+          <div style="padding: var(--space-3) 0; background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-text) 10%, transparent) 20px, color-mix(in srgb, var(--color-text) 10%, transparent) calc(100% - 20px), transparent) no-repeat bottom / 100% 1px">Majo Orellana</div>
+          <div style="padding: var(--space-3) 0; background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-text) 10%, transparent) 20px, color-mix(in srgb, var(--color-text) 10%, transparent) calc(100% - 20px), transparent) no-repeat bottom / 100% 1px">Roberto Amaneceres</div>
+          <div style="padding: var(--space-3) 0; background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-text) 10%, transparent) 20px, color-mix(in srgb, var(--color-text) 10%, transparent) calc(100% - 20px), transparent) no-repeat bottom / 100% 1px">Ana Belén Sáenz</div>
+          <div style="padding: var(--space-3) 0; background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-text) 10%, transparent) 20px, color-mix(in srgb, var(--color-text) 10%, transparent) calc(100% - 20px), transparent) no-repeat bottom / 100% 1px">Harry Jiménez</div>
+          <div style="padding: var(--space-3) 0; background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-text) 10%, transparent) 20px, color-mix(in srgb, var(--color-text) 10%, transparent) calc(100% - 20px), transparent) no-repeat bottom / 100% 1px">Geo</div>
+          <div style="padding: var(--space-3) 0; background: linear-gradient(to right, transparent, color-mix(in srgb, var(--color-text) 10%, transparent) 20px, color-mix(in srgb, var(--color-text) 10%, transparent) calc(100% - 20px), transparent) no-repeat bottom / 100% 1px">Itowax</div>
+          <div style="padding: var(--space-3) 0">Helen Alvarez</div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section style="padding: calc(var(--space-8) * 2.5) var(--space-6)">
+    <div style="max-width: 1180px; margin: 0 auto; display: grid; gap: var(--space-6)">
+      <span style="font-size: 12px; letter-spacing: .3em; color: #FF7A33; text-shadow: 0 0 14px rgba(255,90,40,.6)">EN VIVO</span>
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: var(--space-4)">
+        <div class="lighten"><img src="dj/led.jpg" alt="Juan Solo tocando frente a pantalla LED en evento del GAD Ambato" loading="lazy" style="width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--radius-md)"></div>
+        <img src="dj/cam.jpg" alt="Grabación de un set en rooftop sobre la ciudad" loading="lazy" style="width: 100%; aspect-ratio: 4 / 3; object-fit: cover; border-radius: var(--radius-md); box-shadow: var(--shadow-sm)">
+        <img src="dj/retrato.jpg" alt="Retrato de Juan Solo con audífonos" loading="lazy" style="width: 100%; aspect-ratio: 4 / 3; object-fit: cover; object-position: center 25%; border-radius: var(--radius-md); box-shadow: var(--shadow-sm)">
+      </div>
+    </div>
+  </section>
+
+  <section id="rider" style="padding: calc(var(--space-8) * 2) var(--space-6); background: linear-gradient(180deg, var(--color-bg), var(--color-surface) 16%, var(--color-surface) 84%, var(--color-bg))">
+    <div style="max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(290px, 1fr)); gap: calc(var(--space-8) * 2); align-items: start">
+      <div style="display: grid; gap: var(--space-4); align-content: start">
+        <span style="font-size: 12px; letter-spacing: .3em; color: #FF7A33; text-shadow: 0 0 14px rgba(255,90,40,.6)">RIDER TÉCNICO</span>
+        <h2 style="font-family: var(--font-heading); font-weight: 500; font-size: clamp(24px, 2.8vw, 34px); line-height: 1.1; margin: 0">Equipos que maneja.</h2>
+        <p style="margin: 0; color: var(--color-neutral-300); max-width: 40ch">Llega con USB y toca en lo que haya en cabina. Si tu setup no está en la lista, pregúntanos antes de cerrar la fecha.</p>
+      </div>
+      <table class="table">
+        <thead>
+          <tr><th>Equipo</th><th>Tipo</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>Pioneer CDJ-2000</td><td class="text-muted">Reproductor</td></tr>
+          <tr><td>Pioneer CDJ-400</td><td class="text-muted">Reproductor</td></tr>
+          <tr><td>Pioneer DJM-900NXS2</td><td class="text-muted">Mixer</td></tr>
+          <tr><td>Pioneer DJM-A9</td><td class="text-muted">Mixer</td></tr>
+          <tr><td>Pioneer DJM-V10</td><td class="text-muted">Mixer</td></tr>
+          <tr><td>Pioneer XDJ-RR2</td><td class="text-muted">Controlador todo en uno</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section id="booking" style="position: relative; padding: calc(var(--space-8) * 3) var(--space-6); isolation: isolate">
+    <div class="lighten" style="position: absolute; inset: 0; z-index: -2; opacity: .5; filter: hue-rotate(-152deg) saturate(1.12)">
+      <img src="dj/hero.jpg" alt="" loading="lazy" style="width: 100%; height: 100%; object-fit: cover">
+    </div>
+    <div style="position: absolute; inset: 0; z-index: -1; background: linear-gradient(180deg, var(--color-bg), color-mix(in srgb, var(--color-bg) 60%, transparent), var(--color-bg))"></div>
+    <div style="max-width: 1180px; margin: 0 auto; display: grid; gap: var(--space-8); justify-items: start">
+      <h2 style="font-family: var(--font-heading); font-weight: 500; font-size: clamp(34px, 6vw, 82px); line-height: .95; letter-spacing: -.03em; margin: 0; max-width: 16ch; text-shadow: 0 0 50px rgba(255,77,46,.38)">It's all about house music.</h2>
+      <p style="margin: 0; color: var(--color-neutral-200); max-width: 46ch; font-size: 18px">Manda fecha, ciudad y tipo de evento. Te confirmamos disponibilidad y tarifa el mismo día.</p>
+      <p style="margin: 0; font-size: 15px; color: var(--color-neutral-400)">{{ condiciones }}</p>
+      <div style="display: flex; flex-wrap: wrap; gap: var(--space-3)">
+        <a href="{{ waLink }}" target="_blank" rel="noopener" onClick="{{ track }}" data-cta="final" class="btn btn-primary" style="font-size: 17px; padding: var(--space-4) var(--space-8)">WhatsApp +593 99 513 7063</a>
+        <a href="https://instagram.com/{{ igUser }}" target="_blank" rel="noopener" onClick="{{ track }}" data-cta="ig" class="btn btn-secondary" style="font-size: 17px; padding: var(--space-4) var(--space-8)">{{ igHandle }}</a>
+        <sc-if value="{{ hayPack }}" hint-placeholder-val="{{ false }}"><a href="{{ packLink }}" target="_blank" rel="noopener" onClick="{{ track }}" data-cta="pack" class="btn btn-ghost" style="font-size: 17px; padding: var(--space-4) var(--space-8)">Descargar pack de prensa</a></sc-if>
+      </div>
+    </div>
+  </section>
+
+  <footer style="padding: var(--space-8) var(--space-6)">
+    <div style="max-width: 1180px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: var(--space-8); align-items: start">
+      <div style="font-family: var(--font-heading); font-size: 15px; letter-spacing: .3em">JUAN SOLO</div>
+      <div style="display: grid; gap: var(--space-2); font-size: 14px">
+        <a href="{{ waLink }}" target="_blank" rel="noopener">WhatsApp</a>
+        <a href="https://instagram.com/{{ igUser }}" target="_blank" rel="noopener">Instagram</a>
+        <span style="color: var(--color-neutral-500)">Ambato, Ecuador</span>
+      </div>
+      <div style="display: grid; gap: var(--space-2); justify-items: start">
+        <span style="font-size: 11px; letter-spacing: .3em; color: var(--color-neutral-500)">UN PROYECTO DE</span>
+        <img src="dj/solo-music-logo.png" alt="Solo Music" loading="lazy" style="width: 150px; height: auto; display: block; opacity: .85">
+      </div>
+    </div>
+  </footer>
+
+  <div style="position: fixed; left: 0; right: 0; bottom: 0; z-index: 50; display: flex; gap: var(--space-4); align-items: center; justify-content: space-between; padding: var(--space-3) var(--space-6); background: color-mix(in srgb, var(--color-bg) 93%, transparent); backdrop-filter: blur(12px); border-top: 1px solid var(--color-neutral-800)">
+    <span style="font-family: var(--font-heading); font-size: 14px; letter-spacing: .3em">JUAN SOLO</span>
+    <a href="{{ waLink }}" target="_blank" rel="noopener" onClick="{{ track }}" data-cta="sticky" class="btn btn-primary" style="white-space: nowrap; min-height: 44px; box-shadow: 0 0 0 1px rgba(255,122,51,.3), 0 0 16px rgba(255,122,51,.45)">Contratar</a>
+  </div>
+
+  <template id="__bundler_thumbnail">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><rect width="100" height="100" fill="#161826"></rect><circle cx="50" cy="46" r="18" fill="none" stroke="#9184d9" stroke-width="2"></circle><circle cx="50" cy="46" r="3.5" fill="#9184d9"></circle><text x="50" y="80" text-anchor="middle" font-family="Inter, sans-serif" font-size="9" letter-spacing="1.5" fill="#e9e9ed">JUAN SOLO</text></svg>
+  </template>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;whatsapp&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;593995137063&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Contacto&quot;},&quot;instagram&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;juansolo___99&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Contacto&quot;},&quot;mixLink&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;https://youtube.com/@solomusic25&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Contacto&quot;},&quot;mensajeWhatsapp&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Hola Juan Solo, vi tu press kit. Quiero cotizar una fecha. Ciudad:  · Fecha:  · Tipo de evento: &quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Contacto&quot;},&quot;packLink&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Booking&quot;},&quot;condiciones&quot;:{&quot;editor&quot;:&quot;text&quot;,&quot;default&quot;:&quot;Sets de 2 a 5 horas · Disponible en todo Ecuador · Reserva con 2 semanas de anticipación&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Booking&quot;}}">
+class Component extends DCLogic {
+  state = { copiado: false };
+
+  bio = "Desde Ambato, Ecuador, Juan Solo construye sesiones donde el groove, la elegancia y la energía avanzan como una sola narrativa. Su sonido se mueve entre el house, deep house, tech house, progressive y melodic house, combinando ritmos envolventes, melodías hipnóticas y una selección musical pensada para conectar con cada espacio y transformar su atmósfera. Más que seguir una fórmula, Juan Solo interpreta el momento: puede conducir una pista con energía o crear un ambiente sofisticado y profundo, manteniendo siempre una identidad reconocible detrás de cada transición.\n\nComo fundador de Solo Music, desarrolla una propuesta basada en la curaduría, la experiencia y una visión clara de la música electrónica: crear momentos que permanezcan incluso después de que termine la última canción.\n\nFeel the music. Live the moment.";
+
+  track = (e) => {
+    const origen = e.currentTarget.getAttribute("data-cta") || "cta";
+    if (window.gtag) window.gtag("event", "cta_presskit", { origen });
+    if (window.fbq) window.fbq("track", "Contact", { origen });
+    if (window.dataLayer) window.dataLayer.push({ event: "cta_presskit", origen });
+  };
+
+  copiarBio = () => {
+    const done = () => {
+      this.setState({ copiado: true });
+      setTimeout(() => this.setState({ copiado: false }), 2200);
+    };
+    if (navigator.clipboard) navigator.clipboard.writeText(this.bio).then(done, done);
+    else done();
+  };
+
+  renderVals() {
+    const numero = (this.props.whatsapp ?? "593995137063").replace(/[^0-9]/g, "");
+    const mensaje = encodeURIComponent(
+      this.props.mensajeWhatsapp ?? "Hola Juan Solo, vi tu press kit. Quiero cotizar una fecha. Ciudad:  · Fecha:  · Tipo de evento: "
+    );
+    return {
+      waLink: "https://wa.me/" + numero + "?text=" + mensaje,
+      mixLink: this.props.mixLink ?? "https://youtube.com/@solomusic25",
+      igUser: (this.props.instagram ?? "juansolo___99").replace(/^@/, "").trim(),
+      igHandle: "@" + (this.props.instagram ?? "juansolo___99").replace(/^@/, "").trim(),
+      packLink: this.props.packLink ?? "",
+      hayPack: !!(this.props.packLink ?? "").trim(),
+      condiciones: this.props.condiciones ?? "Sets de 2 a 5 horas · Disponible en todo Ecuador · Reserva con 2 semanas de anticipación",
+      labelCopiar: this.state.copiado ? "Bio copiada ✓" : "Copiar bio",
+      copiarBio: this.copiarBio,
+      track: this.track
+    };
+  }
+}
+</script>
+</body>
+</html>
