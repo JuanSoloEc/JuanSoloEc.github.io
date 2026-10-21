@@ -3,20 +3,21 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Solo DJ Pro</title>
+<title>Solo DJ</title>
 <style>
 :root{
   --bg:#0b0c10; --panel:#14161d; --panel2:#1b1e28; --line:#262a37; --text:#e8eaf0; --mute:#7c8296;
   --a:#29d3ff; --b:#ff3d6e; --ok:#38e08c;
 }
 *{box-sizing:border-box}
-html,body{margin:0;background:var(--bg);color:var(--text);font:13px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
+html,body{margin:0;background:radial-gradient(1200px 500px at 50% -150px,#1c1a12,var(--bg)) no-repeat,var(--bg);min-height:100%;color:var(--text);font:13px/1.4 system-ui,-apple-system,Segoe UI,Roboto,sans-serif}
 button{font:inherit;color:inherit;background:var(--panel2);border:1px solid var(--line);border-radius:6px;padding:8px 10px;cursor:pointer;touch-action:manipulation}
 button:hover{border-color:#3a4052}
 button.on{background:var(--c);color:#04141a;border-color:var(--c);font-weight:700}
 header{display:flex;align-items:center;gap:16px;padding:10px 16px;border-bottom:1px solid var(--line);flex-wrap:wrap}
 header h1{font-size:15px;letter-spacing:.2em;margin:0;text-transform:uppercase}
-header h1 b{color:var(--b)}
+header h1{font-weight:800;font-size:17px}
+header h1 b{background:linear-gradient(90deg,#ffd23f,#ff7a33);-webkit-background-clip:text;background-clip:text;color:transparent}
 header .sp{flex:1}
 .master{display:flex;align-items:center;gap:8px;color:var(--mute);font-size:11px;text-transform:uppercase;letter-spacing:.1em}
 .meter{width:120px;height:8px;background:#0a0b0f;border-radius:4px;overflow:hidden;border:1px solid var(--line)}
@@ -79,7 +80,7 @@ td.act .la{color:var(--a)} td.act .lb{color:var(--b)}
 </head>
 <body>
 <header>
-  <h1>Solo <b>DJ</b> Pro <span style="color:var(--mute);font-weight:400">· demo</span></h1>
+  <svg width="30" height="30" viewBox="0 0 30 30" aria-hidden="true"><defs><linearGradient id="lg" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#ffd23f"/><stop offset="1" stop-color="#ff7a33"/></linearGradient></defs><circle cx="15" cy="15" r="14" fill="none" stroke="url(#lg)" stroke-width="2"/><circle cx="15" cy="15" r="9" fill="none" stroke="url(#lg)" stroke-width="1" opacity=".6"/><circle cx="15" cy="15" r="3" fill="url(#lg)"/><path d="M15 1v6" stroke="url(#lg)" stroke-width="2" stroke-linecap="round"/></svg><h1>Solo <b>DJ</b></h1>
   <span class="sp"></span>
   <label class="master">Master <input id="mvol" type="range" min="0" max="1" step="0.01" value="0.85" style="width:90px"></label>
   <div class="master">Nivel <div class="meter"><i id="mmeter"></i></div></div>
