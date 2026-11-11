@@ -58,6 +58,152 @@
     if (!db.active && other.active && db.events[other.active]) { db.active = other.active; changed = true; }
     if (changed) save();
   }
+  /* ───────── nube (Supabase corestudio · esquema juan_solo) ─────────
+     Funciona sin señal: los cambios se guardan en una cola y se suben cuando
+     vuelve la conexión. Las funciones del servidor sólo responden al secreto
+     de acceso de Juan; las tablas no son accesibles directamente. */
+  var CLOUD_URL = "https://jukpaqtriemqvxormrgb.supabase.co/rest/v1/rpc/";
+  var CLOUD_KEY = "sb_publishable_APs2y-fyeQ3xfhakKvNRxQ_Z6et35pF";
+  var OUTBOX = "jsTickets.outbox";
+  var outbox = (function () { try { return JSON.parse(localStorage.getItem(OUTBOX)) || []; } catch (e) { return []; } })();
+  function saveOutbox() { try { localStorage.setItem(OUTBOX, JSON.stringify(outbox)); } catch (e) {} }
+
+  async function rpc(fn, args, timeoutMs) {
+    var ctl = window.AbortController ? new AbortController() : null;
+    var timer = ctl ? setTimeout(function () { ctl.abort(); }, timeoutMs || 15000) : null;
+    try {
+      var res = await fetch(CLOUD_URL + fn, {
+        method: "POST", cache: "no-store", signal: ctl ? ctl.signal : undefined,
+        headers: { apikey: CLOUD_KEY, "Content-Type": "application/json", "Content-Profile": "juan_solo", "Accept-Profile": "juan_solo" },
+        body: JSON.stringify(Object.assign({ p_secret: accessSecret }, args || {}))
+      });
+      var txt = await res.text();
+      if (!res.ok) { var err = new Error(txt || ("HTTP " + res.status)); err.status = res.status; throw err; }
+      return txt ? JSON.parse(txt) : null;
+    } finally { if (timer) clearTimeout(timer); }
+  }
+
+  var cloudState = "";
+  function setCloud(st) {
+    cloudState = st;
+    var el = $("cloudState"); if (!el) return;
+    var map = {
+      ok: ["Guardado en la nube", "var(--ok)"],
+      sync: ["Sincronizando…", "var(--color-neutral-400)"],
+      offline: ["Sin conexión · se sube al volver la señal", "var(--warn)"],
+      error: ["La nube no responde · los datos siguen en este teléfono", "var(--bad)"]
+    };
+    var m = map[st];
+    el.hidden = !m;
+    if (m) { el.textContent = (st === "ok" ? "☁ " : st === "sync" ? "↻ " : "⚠ ") + m[0]; el.style.color = m[1]; }
+  }
+
+  function cloud(fn, args) { outbox.push({ fn: fn, args: args }); saveOutbox(); flush(); }
+  var flushing = false;
+  async function flush() {
+    if (flushing || !accessSecret) return;
+    if (!outbox.length) { if (cloudState !== "error") setCloud("ok"); return; }
+    flushing = true; setCloud("sync");
+    try {
+      while (outbox.length) {
+        var op = outbox[0];
+        try { await rpc(op.fn, op.args); }
+        catch (e) { setCloud(e.status ? "error" : "offline"); return; }
+        outbox.shift(); saveOutbox();
+        if (op.fn === "checkin") markSynced(op.args.p_event_id, op.args.p_ticket_id);
+      }
+      setCloud("ok");
+    } finally { flushing = false; }
+  }
+  function markSynced(eventId, ticketId) {
+    var e = db.events[eventId];
+    if (e && e.checkins[ticketId]) { e.checkins[ticketId].synced = true; save(); }
+  }
+  function pending(fn, eventId, id) {
+    return outbox.some(function (o) {
+      if (fn && o.fn !== fn) return false;
+      var a = o.args;
+      return (a.p_event_id || a.p_id) === eventId && (!id || a.p_id === id || a.p_ticket_id === id);
+    });
+  }
+  function eventData(e) { return { name: e.name, date: e.date || "", place: e.place || "", types: e.types, key: e.key, created: e.created || Date.now() }; }
+  function ticketData(r) { return { name: r.name, phone: r.phone || "", type: r.type, qty: r.qty, token: r.token, created: r.created, sent: r.sent || null }; }
+  function checkinData(c) { return { name: c.name, type: c.type, qty: c.qty, token: c.token || "" }; }
+  function pushCheckin(eventId, ticketId, c) {
+    cloud("checkin", { p_event_id: eventId, p_ticket_id: ticketId, p_data: checkinData(c), p_at: new Date(c.at).toISOString() });
+  }
+
+  /* Trae todo de la nube y lo une con lo local; sube lo que falte arriba. */
+  var pulling = false;
+  async function pull() {
+    if (pulling || !accessSecret) return;
+    pulling = true;
+    try {
+      var data;
+      try { data = await rpc("pull"); } catch (e) { setCloud(e.status ? "error" : "offline"); return; }
+      var before = JSON.stringify(db);
+      var rEv = {}, rT = {}, rC = {};
+      (data.events || []).forEach(function (r) {
+        rEv[r.id] = r;
+        if (pending("put_event", r.id) || pending("delete_event", r.id)) return;
+        if (r.deleted) {
+          if (db.events[r.id]) { delete db.events[r.id]; if (db.active === r.id) db.active = null; }
+          return;
+        }
+        var e = db.events[r.id] || (db.events[r.id] = { id: r.id });
+        ["name", "date", "place", "types", "key", "created"].forEach(function (k) { if (r.data && r.data[k] !== undefined) e[k] = r.data[k]; });
+        normEvent(e);
+      });
+      (data.tickets || []).forEach(function (r) {
+        var e = db.events[r.event_id]; if (!e) return;
+        rT[r.event_id + "/" + r.id] = 1;
+        var local = null;
+        for (var i = 0; i < e.tickets.length; i++) if (e.tickets[i].id === r.id) { local = e.tickets[i]; break; }
+        if (!local && r.data && r.data.token) e.tickets.push(Object.assign({}, r.data, { id: r.id }));
+        else if (local && r.data && r.data.sent && !local.sent) local.sent = r.data.sent;
+        if (!pending("set_revoked", r.event_id, r.id)) {
+          if (r.revoked_at) e.revoked[r.id] = e.revoked[r.id] || Date.parse(r.revoked_at);
+          else delete e.revoked[r.id];
+        }
+      });
+      (data.checkins || []).forEach(function (r) {
+        var e = db.events[r.event_id]; if (!e) return;
+        rC[r.event_id + "/" + r.ticket_id] = 1;
+        if (pending("undo_checkin", r.event_id, r.ticket_id)) return;
+        var at = Date.parse(r.at), cur = e.checkins[r.ticket_id];
+        if (!cur || at < cur.at) e.checkins[r.ticket_id] = Object.assign({}, r.data || {}, { at: at, synced: true });
+        else cur.synced = true;
+      });
+      // Lo que está sólo en este teléfono: se sube. Ingresos ya sincronizados que
+      // desaparecieron de la nube (deshechos en otra puerta) se quitan aquí.
+      Object.keys(db.events).forEach(function (id) {
+        var e = normEvent(db.events[id]);
+        if (!rEv[id] && !pending("put_event", id)) cloud("put_event", { p_id: id, p_data: eventData(e) });
+        e.tickets.forEach(function (t) {
+          if (!rT[id + "/" + t.id] && t.token && !pending("put_ticket", id, t.id)) cloud("put_ticket", { p_event_id: id, p_id: t.id, p_data: ticketData(t) });
+        });
+        Object.keys(e.revoked).forEach(function (tid) {
+          if (!rT[id + "/" + tid] && !pending("set_revoked", id, tid)) cloud("set_revoked", { p_event_id: id, p_id: tid, p_revoked: true });
+        });
+        Object.keys(e.checkins).forEach(function (tid) {
+          if (rC[id + "/" + tid] || pending("checkin", id, tid)) return;
+          if (e.checkins[tid].synced) delete e.checkins[tid];
+          else pushCheckin(id, tid, e.checkins[tid]);
+        });
+        e.tickets.sort(function (a, b) { return (b.created || 0) - (a.created || 0); });
+      });
+      if (!db.active || !db.events[db.active]) {
+        var ids = Object.keys(db.events).sort(function (a, b) { return (db.events[b].created || 0) - (db.events[a].created || 0); });
+        db.active = ids[0] || null;
+      }
+      if (JSON.stringify(db) !== before) { save(); render(); }
+      flush();
+    } finally { pulling = false; }
+  }
+  window.addEventListener("online", function () { flush(); pull(); });
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) pull(); });
+  setInterval(function () { if (!document.hidden) pull(); }, 45000);
+
   if (navigator.storage && navigator.storage.persist) {
     try { navigator.storage.persist().catch(function () {}); } catch (e) {}
   }
@@ -165,6 +311,7 @@
     }
     db.active = id;
     save();
+    if (!recovered) cloud("put_event", { p_id: id, p_data: eventData(db.events[id]) });
     $("setupForm").reset();
     $("sTypes").value = "General, VIP";
     render();
@@ -174,6 +321,7 @@
 
   function fillEventForm() {
     var e = ev();
+    if ($("eventForm").contains(document.activeElement)) return;
     $("eName").value = e.name || "";
     $("eDate").value = e.date || "";
     $("ePlace").value = e.place || "";
@@ -199,6 +347,7 @@
     e.place = $("ePlace").value.trim();
     e.types = parseTypes($("eTypes").value);
     save(); render(); toast("Evento actualizado");
+    cloud("put_event", { p_id: e.id, p_data: eventData(e) });
   });
 
   $("keyToggle").addEventListener("click", function () {
@@ -219,8 +368,9 @@
   });
   $("deleteEvent").addEventListener("click", function () {
     var e = ev();
-    if (!confirm("¿Eliminar \"" + e.name + "\" de este teléfono? Se pierde su lista de tickets e ingresos. Descarga un respaldo antes si lo necesitas.")) return;
+    if (!confirm("¿Eliminar \"" + e.name + "\"? Se borra en todos los teléfonos, con su lista de tickets e ingresos.")) return;
     delete db.events[e.id];
+    cloud("delete_event", { p_id: e.id });
     var rest = Object.keys(db.events);
     db.active = rest.length ? rest[0] : null;
     save(); render();
@@ -296,6 +446,7 @@
     var rec = { id: id, name: name, phone: $("iPhone").value.trim(), type: ticket.t, qty: qty, token: token, created: Date.now() };
     e.tickets.unshift(rec);
     save();
+    cloud("put_ticket", { p_event_id: e.id, p_id: id, p_data: ticketData(rec) });
     renderTicketCard($("issued"), rec, true);
     $("issued").hidden = false;
     $("iName").value = ""; $("iPhone").value = ""; $("iQty").value = "1";
@@ -362,7 +513,10 @@
     return s;
   }
   function markSent(rec) {
-    if (!rec.sent) { rec.sent = Date.now(); save(); }
+    if (!rec.sent && !rec.external) {
+      rec.sent = Date.now(); save();
+      cloud("put_ticket", { p_event_id: ev().id, p_id: rec.id, p_data: { sent: rec.sent } });
+    }
   }
   async function ticketBlob(rec) {
     var cv = await TK.ticketImage(TK.peek(rec.token), rec.token);
@@ -458,8 +612,9 @@
       if (st.key !== "void" && !r.external) acts.push(h("button", { class: "btn btn-sm btn-danger", type: "button", onclick: function () {
         if (!confirm("¿Anular el ticket de " + r.name + "? Ya no podrá entrar (en este teléfono y en los que importen tu respaldo).")) return;
         e.revoked[r.id] = Date.now(); save(); renderList();
+        cloud("set_revoked", { p_event_id: e.id, p_id: r.id, p_revoked: true });
       } }, ["Anular"]));
-      if (st.key === "void") acts.push(h("button", { class: "btn btn-sm", type: "button", onclick: function () { delete e.revoked[r.id]; save(); renderList(); } }, ["Reactivar"]));
+      if (st.key === "void") acts.push(h("button", { class: "btn btn-sm", type: "button", onclick: function () { delete e.revoked[r.id]; save(); renderList(); cloud("set_revoked", { p_event_id: e.id, p_id: r.id, p_revoked: false }); } }, ["Reactivar"]));
       list.appendChild(h("div", { class: "item" }, [
         h("div", null, [
           h("div", { class: "n", text: r.name }),
@@ -481,13 +636,19 @@
   $("modal").addEventListener("click", function (x) { if (x.target === $("modal")) closeModal(); });
   document.addEventListener("keydown", function (x) { if (x.key === "Escape" && !$("modal").hidden) closeModal(); });
 
-  function checkIn(r, token) {
+  function checkIn(r, token, opts) {
     var e = ev();
-    e.checkins[r.id] = { at: Date.now(), name: r.name, type: r.type, qty: r.qty, token: token || r.token || "" };
+    opts = opts || {};
+    var c = e.checkins[r.id] = { at: opts.at || Date.now(), name: r.name, type: r.type, qty: r.qty, token: token || r.token || "", synced: !!opts.synced };
     save(); renderStats();
+    if (!opts.synced) pushCheckin(e.id, r.id, c);
   }
   function undoCheckIn(id) {
-    delete ev().checkins[id]; save(); renderStats();
+    var e = ev();
+    delete e.checkins[id]; save(); renderStats();
+    outbox = outbox.filter(function (o) { return !(o.fn === "checkin" && o.args.p_event_id === e.id && o.args.p_ticket_id === id); });
+    saveOutbox();
+    cloud("undo_checkin", { p_event_id: e.id, p_ticket_id: id });
   }
 
   /* — exportar / importar — */
@@ -535,6 +696,7 @@
       db.active = inc.id;
       save(); render(); selectTab("lista");
       toast("Respaldo importado y combinado");
+      pull();
     }).catch(function () { toast("Ese archivo no es un respaldo de tickets válido"); });
   });
 
@@ -656,6 +818,7 @@
 
   async function validate(text) {
     var e = ev();
+    paused = true;
     if (/#link=/.test(text)) { showResult("bad", "QR DE STAFF", "", "Este es un QR de vinculación, no un ticket."); return; }
     var token = TK.extractToken(text);
     if (!token) { showResult("bad", "NO VÁLIDO", "", "Este QR no es un ticket de Juan Solo."); log("bad", "QR desconocido"); return; }
@@ -696,7 +859,23 @@
       log("used", t.n + " · repetido");
       return;
     }
-    checkIn({ id: t.i, name: t.n, type: t.t, qty: t.q }, token);
+    // Con señal, la nube decide quién entra primero (varias puertas a la vez).
+    var at = Date.now(), synced = false;
+    if (navigator.onLine !== false && accessSecret) {
+      try {
+        var cr = await rpc("checkin", { p_event_id: e.id, p_ticket_id: t.i, p_data: { name: t.n, type: t.t, qty: t.q, token: token }, p_at: new Date(at).toISOString() }, 2500);
+        synced = true;
+        if (cr && cr.first === false) {
+          e.checkins[t.i] = { at: Date.parse(cr.at), name: t.n, type: t.t, qty: t.q, token: token, synced: true };
+          save(); renderStats();
+          showResult("used", "YA INGRESÓ", t.n, "Entró a las " + timeStr(Date.parse(cr.at)) + " (otra puerta) · " + t.t + " · " + plural(t.q));
+          log("used", t.n + " · repetido");
+          return;
+        }
+        if (cr && cr.at) at = Date.parse(cr.at);
+      } catch (err) { /* sin señal: se valida aquí y se sube luego */ }
+    }
+    checkIn({ id: t.i, name: t.n, type: t.t, qty: t.q }, token, { at: at, synced: synced });
     showResult("ok", "ADELANTE", t.n, t.t + " · Admite " + plural(t.q), t.i);
     log("ok", t.n + " · " + t.t + " · " + plural(t.q));
   }
@@ -810,7 +989,7 @@
     showStorageTip();
     render();
     if (ev() && ev().linked) selectTab("escanear");
-    restoreFromIdb().then(function () { render(); });
+    restoreFromIdb().then(function () { render(); flush(); pull(); });
   }
   /* Aviso si se abrió en un lugar donde los datos no duran (navegador interno de
      WhatsApp/Instagram) o en iPhone fuera del icono. */
