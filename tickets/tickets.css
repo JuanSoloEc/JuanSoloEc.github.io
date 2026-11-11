@@ -114,7 +114,7 @@ select.input { appearance: none; background-image: linear-gradient(45deg, transp
   display: grid; grid-template-columns: auto 1fr; gap: 18px; align-items: center;
 }
 .ticket .qr { background: #fff; border-radius: 12px; padding: 8px; line-height: 0; box-shadow: 0 0 30px rgba(255,90,40,.35); }
-.ticket .qr canvas { width: 168px; height: 168px; image-rendering: pixelated; }
+.ticket .qr canvas { width: 168px; height: 168px; }
 .ticket .who { font-family: var(--font-heading); font-size: 24px; font-weight: 500; line-height: 1.1; letter-spacing: -.01em; word-break: break-word; }
 .ticket .meta { color: #FF8A4D; font-size: 14px; margin-top: 4px; }
 .ticket .code { font-size: 12px; letter-spacing: .14em; color: var(--color-neutral-500); margin-top: 8px; }
@@ -208,6 +208,6 @@ select.input { appearance: none; background-image: linear-gradient(45deg, transp
 
 .secret { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; letter-spacing: .04em; }
 .linkqr { background: #fff; border-radius: 12px; padding: 10px; line-height: 0; justify-self: center; }
-.linkqr canvas { width: 220px; height: 220px; image-rendering: pixelated; }
+.linkqr canvas { width: 220px; height: 220px; }
 
 @media (prefers-reduced-motion: reduce) { * { animation: none !important; transition: none !important; } }

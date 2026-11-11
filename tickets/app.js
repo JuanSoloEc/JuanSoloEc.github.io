@@ -189,7 +189,7 @@
     var url = linkUrl();
     var box = $("linkQr");
     box.innerHTML = "";
-    box.appendChild(TK.qrCanvas(url, 440));
+    box.appendChild(TK.qrCanvas(url, 440, { plain: true }));
     $("waLink").href = "https://wa.me/?text=" + encodeURIComponent("Acceso staff para validar tickets de " + ev().name + ":\n" + url);
     $("linkBox").hidden = false;
   });
@@ -274,7 +274,8 @@
   function renderTicketCard(container, rec, fresh) {
     container.innerHTML = "";
     var url = TK.ticketUrl(rec.token);
-    var qrWrap = h("div", { class: "qr" }, [TK.qrCanvas(url, 336)]);
+    var qrWrap = h("div", { class: "qr" }, [TK.qrCanvas(url, 504)]);
+    TK.fontsReady().then(function () { qrWrap.replaceChildren(TK.qrCanvas(url, 504)); });
     var st = statusOf(rec.id);
     container.appendChild(h("div", { class: "row", style: "justify-content: space-between" }, [
       h("h2", { text: fresh ? "Ticket listo ✓" : "Ticket" }),
