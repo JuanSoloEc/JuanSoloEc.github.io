@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#161826">
+<title>Tickets · Juan Solo</title>
+<link rel="icon" href="../dj/solo-music-logo.png">
+<link rel="stylesheet" href="../ds/styles.css">
+<link rel="stylesheet" href="tickets.css">
+</head>
+<body>
+<div class="wrap">
+
+  <header class="top">
+    <a class="back" href="../">← PRESS KIT</a>
+    <img src="../dj/solo-music-logo.png" alt="Solo Music" style="height: 26px; width: auto; opacity: .85">
+  </header>
+
+  <div style="padding: 12px 0 0">
+    <div class="kicker">ACCESO STAFF · SOLO MUSIC</div>
+    <h1 class="title">Tickets</h1>
+    <div class="event-chip" id="eventChip" hidden><i class="dot"></i><span id="eventChipText"></span></div>
+  </div>
+
+  <div id="insecure" class="box" style="margin-top: 20px; border-color: var(--bad)" hidden>
+    <h2>Abre esta página con https</h2>
+    <p class="muted">La firma de tickets y la cámara sólo funcionan en una conexión segura (https://).</p>
+  </div>
+
+  <!-- ─────────── Primer uso: crear evento ─────────── -->
+  <section id="setup" class="panel" style="margin-top: 24px" hidden>
+    <form class="box" id="setupForm" autocomplete="off">
+      <h2>Crea tu evento</h2>
+      <p class="muted">Cada evento tiene una clave secreta que firma sus tickets. Sólo los teléfonos que tengan esa clave pueden emitir y validar entradas.</p>
+      <div class="field"><label for="sName">NOMBRE DEL EVENTO</label><input class="input" id="sName" required maxlength="60" placeholder="Solo Night · Rooftop"></div>
+      <div class="grid2">
+        <div class="field"><label for="sDate">FECHA</label><input class="input" id="sDate" type="date"></div>
+        <div class="field"><label for="sPlace">LUGAR</label><input class="input" id="sPlace" maxlength="60" placeholder="Ambato"></div>
+      </div>
+      <div class="field"><label for="sTypes">TIPOS DE ENTRADA (separados por coma)</label><input class="input" id="sTypes" value="General, VIP" maxlength="120"></div>
+      <button class="btn btn-primary btn-block" type="submit">Crear evento</button>
+      <p class="muted" style="text-align: center">¿Eres staff de puerta? Escanea el QR de vinculación que te comparta Juan.</p>
+    </form>
+  </section>
+
+  <!-- ─────────── App ─────────── -->
+  <div id="app" hidden>
+    <nav class="tabs" role="tablist">
+      <button class="tab" role="tab" data-tab="emitir" aria-selected="true">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 8a2 2 0 0 0 2-2h14a2 2 0 0 0 2 2v2a2 2 0 0 0 0 4v2a2 2 0 0 0-2 2H5a2 2 0 0 0-2-2v-2a2 2 0 0 0 0-4z"/><path d="M12 9v6M9 12h6"/></svg>
+        Emitir
+      </button>
+      <button class="tab" role="tab" data-tab="escanear" aria-selected="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><path d="M4 12h16"/></svg>
+        Escanear
+      </button>
+      <button class="tab" role="tab" data-tab="lista" aria-selected="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M9 6h11M9 12h11M9 18h11"/><path d="m3 6 1 1 2-2M3 12l1 1 2-2M3 18l1 1 2-2"/></svg>
+        Lista
+      </button>
+      <button class="tab" role="tab" data-tab="evento" aria-selected="false">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.8l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.8-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1.1-1.5 1.7 1.7 0 0 0-1.8.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.8 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.5-1.1 1.7 1.7 0 0 0-.3-1.8l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.8.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.8-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.8V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1z"/></svg>
+        Evento
+      </button>
+    </nav>
+
+    <!-- Emitir -->
+    <section class="panel" data-panel="emitir">
+      <form class="box" id="issueForm" autocomplete="off">
+        <h2>Nuevo ticket</h2>
+        <div class="field"><label for="iName">NOMBRE DEL ASISTENTE</label><input class="input" id="iName" required maxlength="60" placeholder="María López"></div>
+        <div class="field"><label for="iPhone">WHATSAPP (opcional)</label><input class="input" id="iPhone" type="tel" inputmode="tel" maxlength="20" placeholder="099 123 4567"></div>
+        <div class="grid2">
+          <div class="field"><label for="iType">TIPO</label><select class="input" id="iType"></select></div>
+          <div class="field"><label for="iQty">PERSONAS QUE ADMITE</label><input class="input" id="iQty" type="number" min="1" max="20" value="1" inputmode="numeric"></div>
+        </div>
+        <button class="btn btn-primary btn-block" type="submit">Generar ticket con QR</button>
+      </form>
+      <div class="box" id="issued" hidden></div>
+    </section>
+
+    <!-- Escanear -->
+    <section class="panel" data-panel="escanear" hidden>
+      <div class="stats">
+        <div class="stat"><b id="stIn">0</b><span>INGRESOS</span></div>
+        <div class="stat"><b id="stPeople">0</b><span>PERSONAS</span></div>
+        <div class="stat"><b id="stIssued">0</b><span>EMITIDOS</span></div>
+      </div>
+      <div class="scanner" id="scanner">
+        <video id="video" muted playsinline></video>
+        <div class="frame" id="frame" hidden></div>
+        <div class="laser" id="laser" hidden></div>
+        <div class="idle" id="idle">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M4 8V5a1 1 0 0 1 1-1h3M16 4h3a1 1 0 0 1 1 1v3M20 16v3a1 1 0 0 1-1 1h-3M8 20H5a1 1 0 0 1-1-1v-3"/><rect x="8" y="8" width="8" height="8" rx="1"/></svg>
+          <div id="idleText">Apunta la cámara al QR del ticket.</div>
+          <button class="btn btn-primary" id="camStart" type="button">Activar cámara</button>
+        </div>
+        <div class="result" id="result" hidden></div>
+      </div>
+      <div class="row">
+        <button class="btn btn-sm" id="camSwitch" type="button" hidden>Cambiar cámara</button>
+        <button class="btn btn-sm" id="camStop" type="button" hidden>Detener cámara</button>
+        <label class="btn btn-sm" style="margin-left: auto">Validar desde imagen<input type="file" id="scanFile" accept="image/*" hidden></label>
+      </div>
+      <div class="box">
+        <h2 style="font-size: 16px">Últimos escaneos</h2>
+        <div class="list" id="scanLog"><div class="empty">Aún no hay escaneos en esta sesión.</div></div>
+      </div>
+    </section>
+
+    <!-- Lista -->
+    <section class="panel" data-panel="lista" hidden>
+      <div class="stats">
+        <div class="stat"><b id="lsIssued">0</b><span>EMITIDOS</span></div>
+        <div class="stat"><b id="lsIn">0</b><span>INGRESARON</span></div>
+        <div class="stat"><b id="lsPeople">0</b><span>PERSONAS</span></div>
+      </div>
+      <input class="input" id="search" type="search" placeholder="Buscar por nombre, código o teléfono">
+      <div class="row" role="radiogroup" id="filter">
+        <button class="btn btn-sm" data-f="all" aria-pressed="true">Todos</button>
+        <button class="btn btn-sm" data-f="pend" aria-pressed="false">Pendientes</button>
+        <button class="btn btn-sm" data-f="in" aria-pressed="false">Ingresaron</button>
+      </div>
+      <div class="list" id="list"></div>
+      <div class="box">
+        <h2 style="font-size: 16px">Exportar y respaldo</h2>
+        <p class="muted">La lista vive en este teléfono. Descarga un respaldo para pasarla a otro dispositivo o juntar los ingresos de varias puertas.</p>
+        <div class="row">
+          <button class="btn btn-sm" id="exportCsv" type="button">Descargar CSV</button>
+          <button class="btn btn-sm" id="exportJson" type="button">Descargar respaldo</button>
+          <label class="btn btn-sm">Importar respaldo<input type="file" id="importJson" accept="application/json,.json" hidden></label>
+        </div>
+      </div>
+    </section>
+
+    <!-- Evento -->
+    <section class="panel" data-panel="evento" hidden>
+      <form class="box" id="eventForm" autocomplete="off">
+        <h2>Datos del evento</h2>
+        <div class="field"><label for="eName">NOMBRE</label><input class="input" id="eName" required maxlength="60"></div>
+        <div class="grid2">
+          <div class="field"><label for="eDate">FECHA</label><input class="input" id="eDate" type="date"></div>
+          <div class="field"><label for="ePlace">LUGAR</label><input class="input" id="ePlace" maxlength="60"></div>
+        </div>
+        <div class="field"><label for="eTypes">TIPOS DE ENTRADA</label><input class="input" id="eTypes" maxlength="120"></div>
+        <p class="muted">Los cambios aplican a los tickets nuevos. Los ya enviados siguen siendo válidos.</p>
+        <button class="btn btn-primary" type="submit">Guardar cambios</button>
+      </form>
+
+      <div class="box">
+        <h2>Vincular staff de puerta</h2>
+        <p class="muted">Que tu staff escanee este QR con la cámara de su teléfono: se abrirá esta página con el evento listo para validar entradas. Compártelo sólo con gente de confianza, porque también permite emitir tickets.</p>
+        <button class="btn" id="showLink" type="button">Mostrar QR de vinculación</button>
+        <div id="linkBox" class="panel" hidden>
+          <div class="linkqr" id="linkQr"></div>
+          <div class="row" style="justify-content: center">
+            <button class="btn btn-sm" id="copyLink" type="button">Copiar enlace</button>
+            <a class="btn btn-sm btn-wa" id="waLink" target="_blank" rel="noopener">Enviar por WhatsApp</a>
+          </div>
+        </div>
+      </div>
+
+      <div class="box">
+        <h2>Clave secreta</h2>
+        <p class="muted">Firma todos los tickets de este evento. Si alguien la obtiene podría crear entradas falsas.</p>
+        <div class="row">
+          <code class="secret" id="keyView">••••••••••••••••••••••••</code>
+          <button class="btn btn-sm" id="keyToggle" type="button">Mostrar</button>
+        </div>
+      </div>
+
+      <div class="box">
+        <h2>Tus eventos</h2>
+        <div class="field"><label for="eventSelect">EVENTO ACTIVO</label><select class="input" id="eventSelect"></select></div>
+        <div class="row">
+          <button class="btn btn-sm" id="newEvent" type="button">+ Nuevo evento</button>
+          <button class="btn btn-sm btn-danger" id="deleteEvent" type="button" style="margin-left: auto">Eliminar este evento</button>
+        </div>
+      </div>
+    </section>
+  </div>
+</div>
+
+<div class="modal" id="modal" hidden><div class="box" id="modalBox"></div></div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<script src="vendor/qrcode.js"></script>
+<script src="vendor/jsQR.js"></script>
+<script src="core.js"></script>
+<script src="app.js"></script>
+</body>
+</html>
