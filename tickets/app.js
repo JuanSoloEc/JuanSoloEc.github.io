@@ -327,7 +327,9 @@
     var file = new File([blob], fileName(rec), { type: "image/png" });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
       try {
-        await navigator.share({ files: [file], title: "Ticket " + ev().name, text: messageFor(rec) });
+        // Sólo la imagen: en iPhone, si se comparte imagen + texto, WhatsApp
+        // descarta la imagen y envía únicamente el texto.
+        await navigator.share({ files: [file] });
         markSent(rec);
       } catch (e) { /* cancelado */ }
     } else {

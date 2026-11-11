@@ -6,7 +6,19 @@
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#161826">
 <title>Tu ticket · Juan Solo</title>
-<link rel="icon" href="../dj/solo-music-logo.png">
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="description" content="Abre tu ticket y muestra el QR en la puerta.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="Juan Solo">
+<meta property="og:title" content="Tu ticket · Juan Solo">
+<meta property="og:description" content="Abre tu ticket y muestra el QR en la puerta.">
+<meta property="og:image" content="https://juansoloec.github.io/tickets/icons/og-ticket.jpg">
+<meta property="og:image:type" content="image/jpeg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="Juan Solo · Ticket">
+<meta name="twitter:card" content="summary_large_image">
 <link rel="stylesheet" href="../ds/styles.css">
 <link rel="stylesheet" href="tickets.css">
 <style>
@@ -78,7 +90,7 @@
     var name = "ticket-" + TK.slug(t.ev) + "-" + TK.slug(t.n) + ".png";
     var file = new File([blob], name, { type: "image/png" });
     if (navigator.canShare && navigator.canShare({ files: [file] })) {
-      try { await navigator.share({ files: [file], title: "Mi ticket" }); return; } catch (e) { if (e && e.name === "AbortError") return; }
+      try { await navigator.share({ files: [file] }); return; } catch (e) { if (e && e.name === "AbortError") return; }
     }
     var a = document.createElement("a");
     a.href = URL.createObjectURL(blob); a.download = name;
