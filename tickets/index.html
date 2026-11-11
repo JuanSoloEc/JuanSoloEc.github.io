@@ -36,7 +36,10 @@
     <div class="kicker">ACCESO STAFF · SOLO MUSIC</div>
     <h1 class="title">Tickets</h1>
     <div class="event-chip" id="eventChip" hidden><i class="dot"></i><span id="eventChipText"></span></div>
+    <div id="cloudState" style="font-size: 12px; margin-top: 4px" hidden></div>
   </div>
+
+  <div id="storageTip" class="box" style="margin-top: 16px; border-color: var(--warn); color: var(--color-neutral-200); font-size: 14px" hidden></div>
 
   <div id="insecure" class="box" style="margin-top: 20px; border-color: var(--bad)" hidden>
     <h2>Abre esta página con https</h2>
@@ -47,7 +50,7 @@
   <section id="setup" class="panel" style="margin-top: 24px" hidden>
     <form class="box" id="setupForm" autocomplete="off">
       <h2>Crea tu evento</h2>
-      <p class="muted">Cada evento tiene una clave secreta que firma sus tickets. Sólo los teléfonos que tengan esa clave pueden emitir y validar entradas.</p>
+      <p class="muted">Tus eventos se guardan en la nube: si ya creaste uno, aparece solo en unos segundos al tener señal. Si no hay señal y escribes el mismo nombre y fecha, se recupera igual.</p>
       <div class="field"><label for="sName">NOMBRE DEL EVENTO</label><input class="input" id="sName" required maxlength="60" placeholder="Solo Night · Rooftop"></div>
       <div class="grid2">
         <div class="field"><label for="sDate">FECHA</label><input class="input" id="sDate" type="date"></div>
