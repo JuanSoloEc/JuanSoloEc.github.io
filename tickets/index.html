@@ -5,13 +5,27 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="robots" content="noindex, nofollow">
 <meta name="theme-color" content="#161826">
-<title>Tickets · Juan Solo</title>
-<link rel="icon" href="../dj/solo-music-logo.png">
+<title>404 · Página no encontrada</title>
+<link rel="icon" href="icons/icon-192.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="JS Tickets">
 <link rel="stylesheet" href="../ds/styles.css">
 <link rel="stylesheet" href="tickets.css">
 </head>
 <body>
-<div class="wrap">
+<main id="locked" style="min-height: 100vh; display: grid; place-content: center; justify-items: center; gap: 12px; padding: 24px 16px; text-align: center">
+  <div style="font-family: var(--font-heading); font-size: clamp(72px, 22vw, 140px); font-weight: 500; letter-spacing: -.05em; line-height: 1; color: var(--color-neutral-700)">404</div>
+  <p style="margin: 0; color: var(--color-neutral-400)">Esta página no existe.</p>
+  <a href="../" style="font-size: 12px; letter-spacing: .2em">← VOLVER AL INICIO</a>
+  <form id="unlockForm" class="box" style="margin-top: 24px; width: min(360px, 100%); text-align: left" hidden>
+    <div class="field"><label for="unlockInput">PEGA TU ENLACE DE ACCESO</label><input class="input" id="unlockInput" autocomplete="off"></div>
+    <button class="btn btn-primary btn-block" type="submit">Entrar</button>
+  </form>
+</main>
+<div class="wrap" id="main" hidden>
 
   <header class="top">
     <a class="back" href="../">← PRESS KIT</a>

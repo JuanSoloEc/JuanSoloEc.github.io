@@ -183,7 +183,7 @@
   function linkUrl() {
     var e = ev();
     var payload = TK.encodeJSON({ v: 1, id: e.id, name: e.name, date: e.date, place: e.place, types: e.types, key: e.key });
-    return TK.BASE + "#link=" + payload;
+    return TK.BASE + "#acceso=" + accessSecret + "&link=" + payload;
   }
   $("showLink").addEventListener("click", function () {
     var url = linkUrl();
@@ -196,9 +196,8 @@
   $("copyLink").addEventListener("click", function () { copy(linkUrl(), "Enlace de vinculación copiado"); });
 
   function importLinkFromHash() {
-    var m = /^#link=([A-Za-z0-9_-]+)$/.exec(location.hash);
+    var m = /[#&]link=([A-Za-z0-9_-]+)/.exec(location.hash);
     if (!m) return;
-    history.replaceState(null, "", location.pathname + location.search);
     var data;
     try { data = TK.decodeJSON(m[1]); } catch (e) { data = null; }
     if (!data || !data.id || !data.key) { setTimeout(function () { toast("Enlace de vinculación inválido"); }, 300); return; }
@@ -716,8 +715,64 @@
     } catch (e) {}
   }
 
+  /* ───────── acceso privado ─────────
+     La página sólo se abre con el enlace secreto (#acceso=…). Aquí sólo está
+     su huella SHA-256: el secreto no aparece en el código ni en el repositorio.
+     Quien entra sin él ve un "404". */
+  var ACCESS_HASH = "0915657c786e2439aae5a248f8d13ef2e268924b4444b993d497bceee596e577";
+  var ACCESS_STORE = "jsTickets.access";
+  var accessSecret = "";
+
+  async function sha256hex(s) {
+    var d = new Uint8Array(await crypto.subtle.digest("SHA-256", new TextEncoder().encode(s)));
+    return Array.prototype.map.call(d, function (b) { return ("0" + b.toString(16)).slice(-2); }).join("");
+  }
+  async function isValid(secret) {
+    if (!secret || !window.crypto || !crypto.subtle) return false;
+    try { return (await sha256hex(secret)) === ACCESS_HASH; } catch (e) { return false; }
+  }
+  function secretFrom(text) {
+    var m = /[#&?]acceso=([A-Za-z0-9_-]+)/.exec(String(text || ""));
+    return m ? m[1] : "";
+  }
+  function unlock(secret) {
+    accessSecret = secret;
+    try { localStorage.setItem(ACCESS_STORE, secret); } catch (e) {}
+    importLinkFromHash();
+    if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+    document.title = "Tickets · Juan Solo";
+    var mf = document.createElement("link");
+    mf.rel = "manifest"; mf.href = "manifest.webmanifest";
+    document.head.appendChild(mf);
+    if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function () {});
+    $("locked").hidden = true;
+    $("main").hidden = false;
+    render();
+    if (ev() && ev().linked) selectTab("escanear");
+  }
+  function lockOut() {
+    db = { active: null, events: {} };
+    $("main").hidden = true;
+    $("locked").hidden = false;
+    // Dentro de la app instalada (icono) se puede pegar el enlace una vez.
+    var standalone = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone;
+    $("unlockForm").hidden = !standalone;
+  }
+  $("unlockForm").addEventListener("submit", async function (x) {
+    x.preventDefault();
+    var s = secretFrom($("unlockInput").value) || $("unlockInput").value.trim();
+    if (await isValid(s)) unlock(s);
+    else $("unlockInput").value = "";
+  });
+
   /* ───────── inicio ───────── */
-  importLinkFromHash();
-  render();
-  if (ev() && ev().linked) selectTab("escanear");
+  (async function () {
+    var fromUrl = secretFrom(location.hash);
+    var saved = "";
+    try { saved = localStorage.getItem(ACCESS_STORE) || ""; } catch (e) {}
+    if (await isValid(fromUrl)) return unlock(fromUrl);
+    if (await isValid(saved)) return unlock(saved);
+    if (location.hash) history.replaceState(null, "", location.pathname + location.search);
+    lockOut();
+  })();
 })();
