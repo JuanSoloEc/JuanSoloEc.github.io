@@ -44,9 +44,31 @@
 
   /* ticket = { v, e (id evento), i (id ticket), n (nombre), t (tipo), q (personas),
                 ev (nombre evento), d (fecha), l (lugar) } */
+  /* Formato compacto (v2): campos separados por saltos de línea en vez de JSON,
+     y firma de 9 bytes (72 bits). Así el QR lleva menos datos y sale menos
+     denso. Los tickets v1 (JSON, firma de 12 bytes) siguen siendo válidos. */
+  var FIELDS = ["e", "i", "n", "t", "q", "ev", "d", "l"];
+  function clean(v) { return String(v == null ? "" : v).replace(/[\r\n]+/g, " ").trim(); }
+  function packTicket(t) {
+    var d = clean(t.d).replace(/-/g, "");
+    var vals = [t.e, t.i, t.n, t.t, t.q, t.ev, d, t.l].map(clean);
+    return b64u(enc.encode("2\n" + vals.join("\n")));
+  }
+  function unpackTicket(payload) {
+    var txt = dec.decode(unb64u(payload));
+    if (txt.charAt(0) === "{") return JSON.parse(txt);              // v1
+    var parts = txt.split("\n");
+    if (parts[0] !== "2") return null;
+    var t = { v: 2 };
+    FIELDS.forEach(function (k, idx) { t[k] = parts[idx + 1] || ""; });
+    t.q = parseInt(t.q, 10) || 1;
+    if (/^\d{8}$/.test(t.d)) t.d = t.d.slice(0, 4) + "-" + t.d.slice(4, 6) + "-" + t.d.slice(6);
+    return t;
+  }
+
   async function sign(ticket, key) {
-    var payload = encodeJSON(ticket);
-    return payload + "." + (await hmac(key, payload));
+    var payload = packTicket(ticket);
+    return payload + "." + (await hmac(key, payload)).slice(0, 12);
   }
 
   /* Lee un token sin verificar la firma (para mostrarlo al asistente). */
@@ -54,7 +76,7 @@
     try {
       var parts = String(token).split(".");
       if (parts.length !== 2) return null;
-      var t = decodeJSON(parts[0]);
+      var t = unpackTicket(parts[0]);
       return t && t.i ? t : null;
     } catch (e) { return null; }
   }
@@ -64,8 +86,9 @@
     if (parts.length !== 2) return { ok: false, reason: "format" };
     var ticket = peek(token);
     if (!ticket) return { ok: false, reason: "format" };
+    var sig = parts[1];
     var expected = await hmac(key, parts[0]);
-    if (expected !== parts[1]) return { ok: false, reason: "signature", ticket: ticket };
+    if (sig.length < 12 || expected.slice(0, sig.length) !== sig) return { ok: false, reason: "signature", ticket: ticket };
     return { ok: true, ticket: ticket };
   }
 
@@ -80,40 +103,122 @@
 
   function ticketUrl(token) { return BASE + "t.html#" + token; }
 
-  /* — QR — */
-  function qrMatrix(text) {
-    var qr = qrcode(0, "M");
+  /* — QR —
+     Estilo Juan Solo: puntos redondeados, "ojos" con acento naranja y la
+     palabra SOLO en el centro. Corrección de errores Q (~25 %) para que el
+     centro tapado no afecte la lectura. Ajustado probando con varios lectores
+     (ZXing, OpenCV, jsQR): ojos poco redondeados y plaqueta clara leen mejor. */
+  var INK = "#161826", EYE = "#D9480F";
+
+  function qrMatrix(text, ecc) {
+    var qr = qrcode(0, ecc || "M");
     qr.addData(text);
     qr.make();
     var n = qr.getModuleCount();
     return { size: n, dark: function (r, c) { return qr.isDark(r, c); } };
   }
-  function drawQR(ctx, text, x, y, size, color) {
-    var m = qrMatrix(text);
-    var quiet = 2;
-    var cell = size / (m.size + quiet * 2);
-    ctx.fillStyle = color || "#111";
-    for (var r = 0; r < m.size; r++) {
-      for (var c = 0; c < m.size; c++) {
-        if (m.dark(r, c)) {
-          ctx.fillRect(
-            Math.floor(x + (c + quiet) * cell),
-            Math.floor(y + (r + quiet) * cell),
-            Math.ceil(cell),
-            Math.ceil(cell)
-          );
-        }
+  function inFinder(r, c, n) {
+    return (r < 7 && c < 7) || (r < 7 && c >= n - 7) || (r >= n - 7 && c < 7);
+  }
+  function rr(ctx, x, y, w, h, r) {
+    r = Math.min(r, w / 2, h / 2);
+    ctx.beginPath();
+    ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r);
+    ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r);
+    ctx.arcTo(x, y, x + w, y, r);
+    ctx.closePath();
+  }
+
+  /* opts.plain = QR clásico (sin logo), para el QR de vinculación del staff. */
+  function drawQR(ctx, text, x, y, size, opts) {
+    opts = opts || {};
+    if (opts.plain) {
+      var p = qrMatrix(text, "M"), pq = 2, pc = size / (p.size + pq * 2);
+      ctx.fillStyle = INK;
+      for (var pr = 0; pr < p.size; pr++) for (var pcn = 0; pcn < p.size; pcn++) {
+        if (p.dark(pr, pcn)) ctx.fillRect(Math.floor(x + (pcn + pq) * pc), Math.floor(y + (pr + pq) * pc), Math.ceil(pc), Math.ceil(pc));
+      }
+      return;
+    }
+
+    var m = qrMatrix(text, "Q");
+    var n = m.size, quiet = 4;
+    var cell = size / (n + quiet * 2);
+    var ox = x + quiet * cell, oy = y + quiet * cell;
+
+    // "SOLO" en el centro, sin recuadro: sólo se quitan los puntos que tocan
+    // las letras (con un pequeño margen), así el QR "se pierde" alrededor de la palabra.
+    var FONT = function (px) { return "700 " + px + "px Inter, system-ui, sans-serif"; };
+    var K = 8;                                   // resolución de la máscara (px por módulo)
+    var fsMod = n * 0.14;                        // alto de letra en módulos
+    var mk = document.createElement("canvas");
+    mk.width = mk.height = n * K;
+    var mctx = mk.getContext("2d", { willReadFrequently: true });
+    mctx.font = FONT(fsMod * K);
+    var twMod = mctx.measureText("SOLO").width / K;
+    var maxMod = n * 0.42;
+    if (twMod > maxMod) { fsMod *= maxMod / twMod; twMod = maxMod; }
+    function drawWord(c2, scale, offX, offY, stroke) {
+      c2.font = FONT(fsMod * scale);
+      c2.textAlign = "center";
+      c2.textBaseline = "middle";
+      var cx = offX + (n / 2) * scale, cy = offY + (n / 2 + fsMod * 0.04) * scale;
+      if (stroke) { c2.lineJoin = "round"; c2.lineWidth = stroke * scale; c2.strokeText("SOLO", cx, cy); }
+      c2.fillText("SOLO", cx, cy);
+      c2.textBaseline = "alphabetic";
+    }
+    mctx.fillStyle = mctx.strokeStyle = "#000";
+    drawWord(mctx, K, 0, 0, 3.2);                // letras + margen de ~1.6 módulos
+    var mask = mctx.getImageData(0, 0, mk.width, mk.height).data;
+    function inLogo(r, c) {
+      for (var yy = r * K; yy < (r + 1) * K; yy += 2)
+        for (var xx = c * K; xx < (c + 1) * K; xx += 2)
+          if (mask[(yy * mk.width + xx) * 4 + 3] > 20) return true;
+      return false;
+    }
+
+    // Módulos de datos como puntos redondeados.
+    ctx.fillStyle = INK;
+    var rad = cell * 0.46;
+    for (var r = 0; r < n; r++) {
+      for (var c = 0; c < n; c++) {
+        if (!m.dark(r, c) || inFinder(r, c, n) || inLogo(r, c)) continue;
+        ctx.beginPath();
+        ctx.arc(ox + (c + 0.5) * cell, oy + (r + 0.5) * cell, rad, 0, Math.PI * 2);
+        ctx.fill();
       }
     }
+
+    // Ojos: anillo redondeado + centro naranja.
+    [[0, 0], [0, n - 7], [n - 7, 0]].forEach(function (f) {
+      var fx = ox + f[1] * cell, fy = oy + f[0] * cell;
+      ctx.fillStyle = INK;
+      rr(ctx, fx, fy, 7 * cell, 7 * cell, cell * 1.0); ctx.fill();
+      ctx.fillStyle = "#fff";
+      rr(ctx, fx + cell, fy + cell, 5 * cell, 5 * cell, cell * 0.6); ctx.fill();
+      ctx.fillStyle = EYE;
+      rr(ctx, fx + 2 * cell, fy + 2 * cell, 3 * cell, 3 * cell, cell * 0.6); ctx.fill();
+    });
+
+    ctx.fillStyle = INK;
+    drawWord(ctx, cell, ox, oy, 0);
   }
-  function qrCanvas(text, px) {
+  function qrCanvas(text, px, opts) {
     var cv = document.createElement("canvas");
     cv.width = cv.height = px;
     var ctx = cv.getContext("2d");
     ctx.fillStyle = "#fff";
     ctx.fillRect(0, 0, px, px);
-    drawQR(ctx, text, 0, 0, px, "#111");
+    drawQR(ctx, text, 0, 0, px, opts);
     return cv;
+  }
+  function fontsReady() {
+    try {
+      if (document.fonts && document.fonts.load) return document.fonts.load("700 40px Inter").catch(function () {});
+    } catch (e) {}
+    return Promise.resolve();
   }
 
   function roundRect(ctx, x, y, w, h, r) {
@@ -147,7 +252,7 @@
 
   /* Imagen PNG del ticket (1080×1500) para compartir por WhatsApp o guardar. */
   async function ticketImage(ticket, token) {
-    try { if (document.fonts && document.fonts.ready) await document.fonts.ready; } catch (e) {}
+    await fontsReady();
     var W = 1080, H = 1500;
     var cv = document.createElement("canvas");
     cv.width = W; cv.height = H;
@@ -189,7 +294,7 @@
     roundRect(ctx, qx - 28, qy - 28, qs + 56, qs + 56, 36);
     ctx.fill();
     ctx.restore();
-    drawQR(ctx, ticketUrl(token), qx, qy, qs, "#111111");
+    drawQR(ctx, ticketUrl(token), qx, qy, qs);
 
     ctx.fillStyle = "#ffffff";
     var name = ticket.n || "";
@@ -230,7 +335,7 @@
     b64u: b64u, unb64u: unb64u, encodeJSON: encodeJSON, decodeJSON: decodeJSON,
     randomId: randomId, randomKey: randomKey,
     sign: sign, verify: verify, peek: peek, extractToken: extractToken, ticketUrl: ticketUrl,
-    qrCanvas: qrCanvas, ticketImage: ticketImage, canvasBlob: canvasBlob,
+    qrCanvas: qrCanvas, fontsReady: fontsReady, ticketImage: ticketImage, canvasBlob: canvasBlob,
     prettyDate: prettyDate, slug: slug
   };
 })();

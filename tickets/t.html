@@ -14,7 +14,7 @@
   .pass .ev { font-family: var(--font-heading); font-weight: 500; font-size: clamp(32px, 9vw, 46px); line-height: 1; letter-spacing: -.03em; margin: 6px 0 0; text-shadow: 0 0 40px rgba(255,77,46,.4); word-break: break-word; }
   .pass .when { color: var(--color-neutral-300); font-size: 15px; }
   .pass .qrbig { background: #fff; border-radius: 22px; padding: 14px; line-height: 0; justify-self: center; width: min(100%, 360px); box-shadow: 0 0 0 1px rgba(255,122,51,.4), 0 0 46px rgba(255,90,40,.5); }
-  .pass .qrbig canvas { width: 100%; height: auto; image-rendering: pixelated; }
+  .pass .qrbig canvas { width: 100%; height: auto; }
   .pass .name { font-family: var(--font-heading); font-size: 28px; font-weight: 500; line-height: 1.1; word-break: break-word; }
   .pass .type { color: #FF8A4D; font-size: 16px; margin-top: 4px; }
   .pass .code { font-size: 12px; letter-spacing: .2em; color: var(--color-neutral-500); }
@@ -63,7 +63,9 @@
   document.title = "Ticket · " + (t.ev || "Juan Solo");
   document.getElementById("ev").textContent = t.ev || "Evento";
   document.getElementById("when").textContent = [TK.prettyDate(t.d), t.l].filter(Boolean).join(" · ");
-  document.getElementById("qr").appendChild(TK.qrCanvas(TK.ticketUrl(token), 720));
+  var qrBox = document.getElementById("qr");
+  qrBox.appendChild(TK.qrCanvas(TK.ticketUrl(token), 900));
+  TK.fontsReady().then(function () { qrBox.replaceChildren(TK.qrCanvas(TK.ticketUrl(token), 900)); });
   document.getElementById("name").textContent = t.n || "";
   var q = Number(t.q) || 1;
   document.getElementById("type").textContent = (t.t || "General") + " · Admite " + q + (q === 1 ? " persona" : " personas");
