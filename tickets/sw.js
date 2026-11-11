@@ -1,6 +1,6 @@
 /* Juan Solo · Tickets — guarda la app en el teléfono para que el escáner
    funcione aunque en la fiesta no haya buena señal. */
-var CACHE = "js-tickets-v3";
+var CACHE = "js-tickets-v4";
 var SHELL = [
   "./", "index.html", "t.html", "app.js", "core.js", "tickets.css",
   "vendor/qrcode.js", "vendor/jsQR.js", "../ds/styles.css",

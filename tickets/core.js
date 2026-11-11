@@ -42,6 +42,26 @@
     return b64u(crypto.getRandomValues(new Uint8Array(18)));
   }
 
+  /* Eventos reproducibles: el id sale del nombre + fecha, y la clave se deriva
+     del enlace de acceso de Juan. Si el teléfono pierde sus datos (o Juan abre
+     la página en otro navegador), al crear de nuevo el mismo evento se obtiene
+     exactamente el mismo id y la misma clave, y los QR ya enviados siguen siendo válidos. */
+  function normName(s) {
+    return String(s || "").normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase().replace(/[^a-z0-9]+/g, " ").trim();
+  }
+  async function eventIdFor(name, date) {
+    var d = new Uint8Array(await crypto.subtle.digest("SHA-256", enc.encode(normName(name) + "|" + (date || ""))));
+    var alphabet = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789", out = "";
+    for (var i = 0; i < 6; i++) out += alphabet[d[i] % alphabet.length];
+    return out;
+  }
+  async function deriveKey(secret, eventId) {
+    var k = await crypto.subtle.importKey("raw", enc.encode(secret), { name: "HMAC", hash: "SHA-256" }, false, ["sign"]);
+    var sig = new Uint8Array(await crypto.subtle.sign("HMAC", k, enc.encode("evento:" + eventId)));
+    return b64u(sig.slice(0, 18));
+  }
+
   /* ticket = { v, e (id evento), i (id ticket), n (nombre), t (tipo), q (personas),
                 ev (nombre evento), d (fecha), l (lugar) } */
   /* Formato compacto (v2): campos separados por saltos de línea en vez de JSON,
@@ -333,7 +353,7 @@
   window.TK = {
     BASE: BASE,
     b64u: b64u, unb64u: unb64u, encodeJSON: encodeJSON, decodeJSON: decodeJSON,
-    randomId: randomId, randomKey: randomKey,
+    randomId: randomId, randomKey: randomKey, eventIdFor: eventIdFor, deriveKey: deriveKey,
     sign: sign, verify: verify, peek: peek, extractToken: extractToken, ticketUrl: ticketUrl,
     qrCanvas: qrCanvas, fontsReady: fontsReady, ticketImage: ticketImage, canvasBlob: canvasBlob,
     prettyDate: prettyDate, slug: slug

@@ -16,9 +16,52 @@
     return { active: null, events: {} };
   }
   function save() {
-    try { localStorage.setItem(STORE, JSON.stringify(db)); }
+    db.updated = Date.now();
+    var json = JSON.stringify(db);
+    try { localStorage.setItem(STORE, json); }
     catch (e) { toast("No se pudo guardar en este teléfono (¿modo privado?)"); }
+    idbPut(json);
   }
+
+  /* Copia en IndexedDB: segundo lugar de guardado por si el navegador borra localStorage. */
+  function idb() {
+    return new Promise(function (res, rej) {
+      if (!window.indexedDB) return rej();
+      var r = indexedDB.open("jsTickets", 1);
+      r.onupgradeneeded = function () { r.result.createObjectStore("kv"); };
+      r.onsuccess = function () { res(r.result); };
+      r.onerror = function () { rej(r.error); };
+    });
+  }
+  function idbPut(json) {
+    idb().then(function (d) { d.transaction("kv", "readwrite").objectStore("kv").put(json, STORE); }).catch(function () {});
+  }
+  function idbGet() {
+    return idb().then(function (d) {
+      return new Promise(function (res) {
+        var q = d.transaction("kv").objectStore("kv").get(STORE);
+        q.onsuccess = function () { res(q.result || null); };
+        q.onerror = function () { res(null); };
+      });
+    }).catch(function () { return null; });
+  }
+  /* Une lo guardado en IndexedDB con localStorage (no se pierde nada de ninguno). */
+  async function restoreFromIdb() {
+    var raw = await idbGet();
+    if (!raw) { if (Object.keys(db.events).length) idbPut(JSON.stringify(db)); return; }
+    var other; try { other = JSON.parse(raw); } catch (e) { return; }
+    if (!other || !other.events) return;
+    var changed = false;
+    Object.keys(other.events).forEach(function (id) {
+      if (!db.events[id]) { db.events[id] = other.events[id]; changed = true; }
+    });
+    if (!db.active && other.active && db.events[other.active]) { db.active = other.active; changed = true; }
+    if (changed) save();
+  }
+  if (navigator.storage && navigator.storage.persist) {
+    try { navigator.storage.persist().catch(function () {}); } catch (e) {}
+  }
+
   function ev() { return db.active ? db.events[db.active] : null; }
   function normEvent(e) {
     e.tickets = e.tickets || [];
@@ -104,25 +147,29 @@
   }
 
   /* ───────── crear / editar evento ───────── */
-  $("setupForm").addEventListener("submit", function (x) {
+  $("setupForm").addEventListener("submit", async function (x) {
     x.preventDefault();
-    var id = TK.randomId(6);
-    db.events[id] = normEvent({
-      id: id,
-      name: $("sName").value.trim(),
-      date: $("sDate").value,
-      place: $("sPlace").value.trim(),
-      types: parseTypes($("sTypes").value),
-      key: TK.randomKey(),
-      created: Date.now()
-    });
+    var name = $("sName").value.trim(), date = $("sDate").value;
+    var id = await TK.eventIdFor(name, date);
+    var recovered = !!db.events[id];
+    if (!recovered) {
+      db.events[id] = normEvent({
+        id: id,
+        name: name,
+        date: date,
+        place: $("sPlace").value.trim(),
+        types: parseTypes($("sTypes").value),
+        key: await TK.deriveKey(accessSecret, id),
+        created: Date.now()
+      });
+    }
     db.active = id;
     save();
     $("setupForm").reset();
     $("sTypes").value = "General, VIP";
     render();
     selectTab("emitir");
-    toast("Evento creado");
+    toast(recovered ? "Ese evento ya existía: lo abrí" : "Evento listo");
   });
 
   function fillEventForm() {
@@ -613,7 +660,17 @@
     var token = TK.extractToken(text);
     if (!token) { showResult("bad", "NO VÁLIDO", "", "Este QR no es un ticket de Juan Solo."); log("bad", "QR desconocido"); return; }
     var res;
-    try { res = await TK.verify(token, e.key); } catch (err) { showResult("bad", "ERROR", "", "No se pudo verificar (¿https?)."); return; }
+    try {
+      res = await TK.verify(token, e.key);
+      var tid = res.ticket && res.ticket.e;
+      if (!res.ok && tid) {
+        // Clave de otro evento guardado, o la clave derivada del acceso de Juan.
+        var keys = [];
+        if (db.events[tid] && db.events[tid].key !== e.key) keys.push(db.events[tid].key);
+        if (accessSecret) keys.push(await TK.deriveKey(accessSecret, tid));
+        for (var ki = 0; ki < keys.length && !res.ok; ki++) res = await TK.verify(token, keys[ki]);
+      }
+    } catch (err) { showResult("bad", "ERROR", "", "No se pudo verificar (¿https?)."); return; }
     var t = res.ticket || {};
     if (!res.ok) {
       if (t.e && t.e !== e.id) {
@@ -750,11 +807,25 @@
     if ("serviceWorker" in navigator) navigator.serviceWorker.register("sw.js").catch(function () {});
     $("locked").hidden = true;
     $("main").hidden = false;
+    showStorageTip();
     render();
     if (ev() && ev().linked) selectTab("escanear");
+    restoreFromIdb().then(function () { render(); });
+  }
+  /* Aviso si se abrió en un lugar donde los datos no duran (navegador interno de
+     WhatsApp/Instagram) o en iPhone fuera del icono. */
+  function showStorageTip() {
+    var ua = navigator.userAgent || "";
+    var standalone = (window.matchMedia && matchMedia("(display-mode: standalone)").matches) || navigator.standalone;
+    var inApp = /FBAN|FBAV|Instagram|WhatsApp|Line\/|; wv\)/i.test(ua);
+    var ios = /iPhone|iPad|iPod/.test(ua);
+    var msg = "";
+    if (inApp) msg = "Estás dentro del navegador de otra app: aquí tus eventos pueden borrarse. Ábrelo en Safari o Chrome, o usa el icono JS Tickets.";
+    else if (ios && !standalone) msg = "Consejo: en iPhone, Safari y el icono JS Tickets guardan datos por separado. Usa siempre el mismo (mejor el icono).";
+    $("storageTip").textContent = msg;
+    $("storageTip").hidden = !msg;
   }
   function lockOut() {
-    db = { active: null, events: {} };
     $("main").hidden = true;
     $("locked").hidden = false;
     // Dentro de la app instalada (icono) se puede pegar el enlace una vez.
